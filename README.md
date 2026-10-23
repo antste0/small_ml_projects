@@ -1,74 +1,30 @@
 # small_ml_projects
 
-A collection of small machine learning projects that are too small for their own repository.
+A collection of small machine learning projects that are too small for their own repository. Each folder has its own README with details and results.
 
 ## Projects
 
-| Folder | Description | Stack |
+| Project | Description | Stack |
 |---|---|---|
-| [`image_recognition/cifar-10.ipynb`](image_recognition/cifar-10.ipynb) | CIFAR-10 image classification (10 classes) with a CNN using BatchNorm, MaxPooling, GlobalAveragePooling and Dropout | Keras, NumPy, Matplotlib |
-| [`image_recognition/camera_image_recognition/cnn`](image_recognition/camera_image_recognition/cnn) | Real-time object recognition from a camera (bottle, pen, flashlight) | PyTorch, OpenCV, Hugging Face `datasets` |
-| [`markov_chains/markov_chain_rps.ipynb`](markov_chains/markov_chain_rps.ipynb) | Rock-paper-scissors: a Markov chain player against a Bayesian learning player (Dirichlet prior) | Python, Matplotlib |
-| [`rag/rag.ipynb`](rag/rag.ipynb) | Retrieval-Augmented Generation: vector index search and answer generation | FAISS, `sentence-transformers`, Transformers |
+| [CIFAR-10](image_recognition/README.md) | Image classification (10 classes) with a CNN; the best model reaches 0.81 test accuracy | Keras, NumPy, Matplotlib |
+| [Camera image recognition](image_recognition/camera_image_recognition/cnn/README.md) | Real-time object recognition from a camera (bottle, pen, flashlight); 0.911 test accuracy | PyTorch, OpenCV, Hugging Face `datasets` |
+| [Markov chains: rock-paper-scissors](markov_chains/README.md) | A Markov chain player against a Bayesian learning player (Dirichlet prior) | Python, Matplotlib |
+| [RAG](rag/README.md) | Retrieval-Augmented Generation: vector index search and answer generation | FAISS, `sentence-transformers`, Transformers |
 
-### CIFAR-10
+## About the projects
 
-A comparison of two small CNNs trained with data augmentation, `EarlyStopping` (patience 10, best weights restored) and `ReduceLROnPlateau`. Results come from `cifar-10.ipynb`; the test set is also used as the validation set:
+### [CIFAR-10](image_recognition/README.md)
 
-| Model | Architecture | Parameters | Epochs | Accuracy (test) | Loss (test) |
-|---|---|---|---|---|---|
-| 1 | 3 Conv blocks (64-64-128), GELU | 131k | 30 | **0.81** | 0.56 |
-| 2 | 5 Conv blocks (32-64-64-64-64), ReLU | 141k | 26 (early stopping) | 0.78 | 0.65 |
+Two small CNNs (131k and 141k parameters) trained on CIFAR-10 with data augmentation, `EarlyStopping` and `ReduceLROnPlateau`. The comparison shows that a shallower, wider network with GELU (3 Conv blocks, 0.81 accuracy) beats a deeper one with ReLU (5 blocks, 0.78) despite a similar parameter count. The most common errors are cat/dog and bird/frog confusions.
 
-The shallower and wider network with GELU performed better than the deeper one, despite having fewer parameters.
+### [Camera image recognition](image_recognition/camera_image_recognition/cnn/README.md)
 
-![Model 1 training curves](image_recognition/assets/cifar_training_curves.png)
-![val_accuracy comparison of models 1 and 2](image_recognition/assets/cifar_model_comparison.png)
+A complete pipeline from data to a live demo. `model.ipynb` loads the dataset, applies letterbox preprocessing (preserving the aspect ratio) and trains a CNN with `SiLU`, `BatchNorm` and `Dropout`. `main.ipynb` loads the best checkpoint (0.84 MB) and classifies frames from a webcam. It reaches 0.911 accuracy on the test set.
 
-Confusion matrix of model 1 on the test set (10,000 images, 8,132 correct). Cats and dogs are confused most often (106 cats predicted as dogs and 125 dogs as cats), as are birds and frogs (122 birds predicted as frogs). Frogs (938) and automobiles (932) are recognised best.
+### [Markov chains: rock-paper-scissors](markov_chains/README.md)
 
-![Model 1 confusion matrix](image_recognition/assets/cifar_confusion_matrix.png)
+A simulation of a game between two players. One plays according to a fixed transition matrix (the next move depends on the previous one), the other learns that matrix online from observed moves using counts with a Dirichlet prior. After 1000 rounds the learner wins 477 rounds against 248 losses, and its estimated matrix is close to the true one.
 
-### Camera image recognition
+### [RAG](rag/README.md)
 
-- `model.ipynb`: loading the dataset (`imagefolder`), letterbox preprocessing (preserving the aspect ratio), CNN training (`SiLU`, `BatchNorm`, `Dropout`), confusion matrix.
-- `main.ipynb`: loads the trained weights from `assets/best_model.pth` and classifies the camera image (`cv2.VideoCapture(0)`).
-- Result of the best checkpoint (chosen by the lowest val loss) on the test set: **accuracy 0.911**, loss 0.225. The model's parameter size is 0.84 MB. Training ran for 100 epochs (Adam, lr 0.0012, `ReduceLROnPlateau` lowered the lr to 0.0006 and then to 0.0003).
-- Dependencies are listed in `pyproject.toml` (Python ≥ 3.12, managed with [uv](https://docs.astral.sh/uv/)).
-
-![Training curves](image_recognition/camera_image_recognition/cnn/assets/training_curves.png)
-![Confusion matrix](image_recognition/camera_image_recognition/cnn/assets/confusion_matrix.png)
-
-### Markov chains: rock-paper-scissors
-
-The `MarkovPlayer` class plays according to a given transition matrix. `BayesianLearningPlayer` learns this matrix from the opponent's observed moves (counts with a Dirichlet prior) and predicts the next move.
-
-Result of a single simulation (1000 rounds, `alpha=1.0`): the learning player won 477 rounds, lost 248, and 275 ended in a draw. The final score from the Markov player's perspective is −230. For the first 100 rounds the score hovers around 0, between rounds 175 and 300 it stays at around −20, and after that the learning player's lead grows almost linearly. The learned transition matrix is close to the given one (e.g. after `S` the opponent plays `R` with probability 0.79, against 0.8 in the given matrix).
-
-Notation: R is rock, P is paper, S is scissors. The row is the opponent's previous move and the column is the next one.
-
-| After move | R | P | S |
-|---|---|---|---|
-| R | 0.31 | 0.38 | 0.32 |
-| P | 0.41 | 0.16 | 0.43 |
-| S | 0.79 | 0.12 | 0.09 |
-
-![Cumulative score](markov_chains/assets/cumulative_score.png)
-
-The result depends on randomness (no fixed seed), so later runs will give different numbers.
-
-### RAG
-
-- Embeddings: `intfloat/multilingual-e5-base`
-- Generative model: `Qwen/Qwen2.5-3B-Instruct` (quantised with `BitsAndBytesConfig`, so a CUDA GPU is required)
-- Vector index: FAISS
-
-Example answers (corpus: an article about the Union of Poor Peasants from Huliaipole):
-
-| Question | Answer |
-|---|---|
-| Who was the main supplier of the group's weaponry? | Oleksandr Semenyuta was the main supplier of the group's weaponry. |
-| What happened to the union of poor peasants? | The Union of Poor Peasants was deposed in a coup by Ukrainian nationalists, and the town fell under the control of the Austro-Hungarian Army. |
-| At what temperature does the water boil? | No information in the document. |
-
-The model correctly refuses to answer questions outside the document (water, the meaning of life). When the answer is "No information", the system repeats the retrieval with a larger `k` (4 → 7). The evaluation is qualitative only: there is no test set with reference answers.
+A question-answering system over a single document. Text fragments are embedded with `multilingual-e5-base`, indexed in FAISS, and the retrieved context is passed to a quantised `Qwen2.5-3B-Instruct` (a CUDA GPU is required). The model refuses to answer questions outside the document, and when it finds nothing it retries retrieval with a larger `k`. The evaluation is qualitative only.
