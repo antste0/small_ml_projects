@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# YOLO dataset and pretrained weights
+image_recognition/camera_image_recognition/yolo/assets/
+image_recognition/camera_image_recognition/yolo/dataset/
+image_recognition/camera_image_recognition/yolo/yolo26n.pt

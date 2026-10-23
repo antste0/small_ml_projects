@@ -1,0 +1,29 @@
+[project]
+name = "wma-projekt5"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ipywidgets>=8.1.8",
+    "pip>=26.1.1",
+    "ultralytics>=8.4.57",
+    "torch>=2.6.0",
+    "torchvision>=0.21.0",
+    "triton-rocm>=3.7.0",
+    "pygame>=2.6.1",
+    "ipykernel>=7.2.0",
+]
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm7.2"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-rocm" }
+torchvision = { index = "pytorch-rocm" }
+triton-rocm = { index = "pytorch-rocm" }
+
+[tool.uv]
+system-site-packages = true
